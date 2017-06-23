@@ -19,11 +19,11 @@ int main(int argc, char* argv[]){
 	complex32 *csd_data[N_STS];
 	int n_ltf=0;
 	int N_SYM=0;
+    int i,j;
 	if(!isPreAndHeLTFVauled){
 	    //set the information of sig
 	    unsigned char SigInfo[3];
 	    setSigInfo(SigInfo,3);
-	    int i=0;
 	    for(i=0;i<N_STS;i++){
 	        STF[i]=(complex32*)malloc(64*sizeof(complex32));
 	        LTF[i]=(complex32*)malloc(64*sizeof(complex32));
@@ -47,15 +47,17 @@ int main(int argc, char* argv[]){
 	        complex32* pHeLTFStart=heLTF[i];
 	        generateHeLTF_csd(pHeLTFStart,i,n_ltf);
 	    }
+        isPreAndHeLTFVauled=1;
+    }//end of isPreAndHeLTFValued
 	    //data process
 	    //传入数据databits
-	    FILE *fp=fopen("send_din_dec.txt","rt");
+	    FILE *t=fopen("send_din_dec.txt","rt");
 	    unsigned int datatmp=0;
 	    for(i=0;i<APEP_LEN;i++){
-	            fscanf(fp,"%ud",&datatmp);
+	            fscanf(t,"%ud",&datatmp);
 	            databits[i]=datatmp&0x000000FF;
 	    }
-	    fclose(fp);
+	    fclose(t);
 	    //生成CSD之前的data部分
 	    int numberOfData();
 	    N_SYM=numberOfData();
@@ -64,14 +66,21 @@ int main(int argc, char* argv[]){
 	        csd_data[i] = (complex32 *)malloc(sizeof(complex32)*(subcar*N_SYM));
 	        MKSUREENMEM(csd_data[i]);
 	    }
+        
 		#ifdef OPTIMIZATION
 		Creatnewchart();
 		init_BCCencode_table();
 		initial_streamwave_table();
 		#endif
-		isPreAndHeLTFVauled=1;
-	}//end of isPreAndHeLTFValued
-
+		
+     
+     complex32 *trans_data[N_STS];
+    for(i=0;i<N_STS;i++)
+    {
+        trans_data[i] = (complex32 *)malloc(sizeof(complex32)*(640*N_SYM));
+        MKSUREENMEM(trans_data[i]);
+        memset(trans_data[i],0,(640*N_SYM)*sizeof(complex32));
+    }
 	//generate data
 	time_t start_time=clock();
     #define DEBUGSTABLE
@@ -80,19 +89,24 @@ int main(int argc, char* argv[]){
     while(n--){
     #endif
 		GenerateData(databits, csd_data);
+		
+    	csd_data_IDFT(csd_data,trans_data,N_SYM);
     #ifdef DEBUGSTABLE
     }
     #endif
 	time_t end_time=clock();
-	if(OPTIMIZATION){
+
+	#ifdef OPTIMIZATION
 		printf("OPTIMIZATION! use time: %fs\n",(double)(end_time-start_time)/CLOCKS_PER_SEC);
-	}
-	else{
+	//}
+	//else{
+	#else
 		printf("NOT USE OPTIMIZATION! use time: %fs\n",(double)(end_time-start_time)/CLOCKS_PER_SEC);
-	}
+	//}
+	#endif
 	
     //save data
-    int i,j;
+    
     FILE *a=fopen("csd_data_real.txt","wt");                                       //将结果写入文件
     FILE *b=fopen("csd_data_imag.txt","wt");
     for(i=1;i<=N_STS;i++)for(j=1;j<=(subcar*N_SYM);j++)fprintf(a,"%d\r\n",csd_data[i-1][j-1].real);
@@ -155,6 +169,14 @@ void printStreamToFile(complex32* pData, int length, FILE* fp){
     int n=length;
     while(n--){
         fprintf(fp,"%d %d\r\n",pData->real,pData->imag);
+        ++pData;
+    }
+}
+
+void printStreamToFile_float(complex32* pData, int length, FILE* fp){
+    int n=length;
+    while(n--){
+        fprintf(fp,"(%f,%f)\n",((float)pData->real)/8192,((float)pData->imag)/8192);
         ++pData;
     }
 }

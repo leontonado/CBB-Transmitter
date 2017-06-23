@@ -28,7 +28,7 @@
 #   THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 #   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 #   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-export RTE_SDK ?=/home/yujiamanong/Desktop/dpdk-stable-16.11.1
+export RTE_SDK ?=/home/felix/Desktop/dpdk-stable-16.11.1
 ifeq ($(RTE_SDK),)
 $(error "Please define RTE_SDK environment variable")
 endif
@@ -42,9 +42,10 @@ include $(RTE_SDK)/mk/rte.vars.mk
 APP = CBB-Transmiter
 
 VPATH += $(SRCDIR)/BCCencode
-#VPATH += $(SRCDIR)/IFFT
+VPATH += $(SRCDIR)/IFFT
 VPATH += $(SRCDIR)/intrinsics_interface
 VPATH += $(SRCDIR)/Process
+VPATH += $(SRCDIR)/Process/process_after_csd
 VPATH += $(SRCDIR)/process_data
 VPATH += $(SRCDIR)/process_data/process_datafunction
 VPATH += $(SRCDIR)/typeDef
@@ -54,8 +55,7 @@ VPATH += $(SRCDIR)/VarINIT
 SRCS-y := main.c mainbfBCC.c test.c
 SRCS-y += ccoding_byte.c
 
-#SRCS-y += ifft.c ifftShiftandIFFTPreamble.c
-
+SRCS-y += ifft.c ifftShiftandIFFTData.c
 SRCS-y += intrinsics_interface_v2.c
 
 SRCS-y += bccInterleaverForSig.c csdForHeLTF.c csdForPreamble.c
@@ -66,22 +66,24 @@ SRCS-y += MapForSig.c setSigInfo.c
 SRCS-y += mcs_table_for_20M.c process_data.c
 SRCS-y += BCC_encoder.c Data_CSD.c GenDataAndScramble.c
 SRCS-y += GenInit.c modulate.c modulate_opt.c PilotAdd_SubcarMap.c
-
+SRCS-y += csd_data_IDFT.c addCPforData.c 
 SRCS-y += commonStructure.c
 
 SRCS-y += globalVarINIT.c
 
 CFLAGS += -O3
 CFLAGS += -I$(SRCDIR)/BCCencode
-#CFLAGS += -I$(SRCDIR)/IFFT
+CFLAGS += -I$(SRCDIR)/IFFT
 CFLAGS += -I$(SRCDIR)/intrinsics_interface
 CFLAGS += -I$(SRCDIR)/Process
+CFLAGS += -I$(SRCDIR)/Process/process_after_csd
 CFLAGS += -I$(SRCDIR)/process_data
 CFLAGS += -I$(SRCDIR)/process_data/process_datafunction
 CFLAGS += -I$(SRCDIR)/typeDef
 CFLAGS += -I$(SRCDIR)/VarINIT
 
 CFLAGS += -D OPTIMIZATION
+CFLAGS += -D AVX2
 #CFLAGS += $(WERROR_FLAGS)
 
 #LDLIBS += -L$(subst main,print_abcd,$(RTE_OUTPUT))/lib

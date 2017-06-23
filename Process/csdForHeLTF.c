@@ -2,7 +2,7 @@
 #include "../headers/process.h"
 #include "../headers/commonStructure.h"
 #include "../headers/globalVarINIT.h"
-
+#include "../headers/process_data.h"
 #ifndef AVX2
 void csdForHeLTF(complex32* pStreamBfcsd, complex32* pStreamAfcsd, int NTXindex, int length){
      int n=length;

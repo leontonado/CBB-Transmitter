@@ -78,12 +78,13 @@ extern void Mult_complex32Vector_2(complex32* a, complex32* b, complex32* dest /
 extern void printForCpmlex(complex rp);
 extern void printForCpmlex32(complex32 rp);
 extern void printStreamToFile(complex32* pData, int length, FILE* fp);
+extern void printStreamToFile_float(complex32* pData, int length, FILE* fp);
 
 //IFFT
-/*extern void IFFT(complex* src,complex* dst,int size_n);
+extern void IFFT(complex* src,complex* dst,int size_n);
 
 extern void ifftShiftandIFFTPreamble(complex32* pstfAfterCSD,
                                      complex32* pAfterIFFT,
-                                     int N_tone);*/
+                                     int N_tone);
 
 #endif // HEADERPROCESS

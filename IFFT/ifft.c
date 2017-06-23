@@ -73,7 +73,7 @@ void DFT(complex* src,complex* dst,int size){
 
 void IDFT(complex* src,complex* dst,int size){
     clock_t start,end;
-    start=clock();
+    //start=clock();
     int m=0;
     for(m=0;m<size;m++){
         float real=0.0;
@@ -95,8 +95,8 @@ void IDFT(complex* src,complex* dst,int size){
         else
             printf("%lf%lfj\n",real,imag);*/
     }
-    end=clock();
-    printf("IDFT use time :%lfs for Datasize of:%d\n",(double)(end-start)/CLOCKS_PER_SEC,size);//(double) CLOCKS_PER_SEC
+    //end=clock();
+   // printf("IDFT use time :%lfs for Datasize of:%d\n",(double)(end-start)/CLOCKS_PER_SEC,size);//(double) CLOCKS_PER_SEC
 }
 
 int FFT_remap(complex* src,int size_n){
@@ -180,8 +180,8 @@ void IFFT(complex* src,complex* dst,int size_n){
     FFT_remap(src, size_n);
    // for(int i=0;i<size_n;i++)
     //    printf("%lf\n",src[i]);
-    clock_t start,end;
-    start=clock();
+   // clock_t start,end;
+   // start=clock();
     int k=size_n;
     int z=0;
     while (k/=2) {
@@ -228,8 +228,8 @@ void IFFT(complex* src,complex* dst,int size_n){
         dst[i].imag=src_com[i].imag/size_n;
         dst[i].real=src_com[i].real/size_n;
     }
-    end=clock();
-    printf("IFFT use time :%lfs for Datasize of:%d\n",(double)(end-start)/CLOCKS_PER_SEC,size_n);//(double) CLOCKS_PER_SEC
+   // end=clock();
+  //  printf("IFFT use time :%lfs for Datasize of:%d\n",(double)(end-start)/CLOCKS_PER_SEC,size_n);//(double) CLOCKS_PER_SEC
 }
 
 //test for ifft
