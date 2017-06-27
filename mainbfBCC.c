@@ -16,7 +16,7 @@ int main(int argc, char* argv[]){
 	complex32* Sig[N_TX];
 	complex32* heLTF[N_TX];
 	unsigned char* databits=(unsigned char*)malloc(APEP_LEN*sizeof(unsigned char));
-	complex32 *csd_data[N_STS];
+	
 	int n_ltf=0;
 	int N_SYM=0;
     int i,j;
@@ -61,6 +61,7 @@ int main(int argc, char* argv[]){
 	    //生成CSD之前的data部分
 	    int numberOfData();
 	    N_SYM=numberOfData();
+        complex32 *csd_data[N_STS];
 	    for(i=0;i<N_STS;i++)
 	    {
 	        csd_data[i] = (complex32 *)malloc(sizeof(complex32)*(subcar*N_SYM));
@@ -70,11 +71,11 @@ int main(int argc, char* argv[]){
 		#ifdef OPTIMIZATION
 		Creatnewchart();
 		init_BCCencode_table();
-		initial_streamwave_table();
+		initial_streamwave_table(N_SYM);
 		#endif
 		
      
-     complex32 *trans_data[N_STS];
+    complex32 *trans_data[N_STS];
     for(i=0;i<N_STS;i++)
     {
         trans_data[i] = (complex32 *)malloc(sizeof(complex32)*(640*N_SYM));
@@ -85,12 +86,16 @@ int main(int argc, char* argv[]){
 	time_t start_time=clock();
     #define DEBUGSTABLE
     #ifdef DEBUGSTABLE
-    int n=100000;
+    int n=10000;
     while(n--){
     #endif
 		GenerateData(databits, csd_data);
 		
     	csd_data_IDFT(csd_data,trans_data,N_SYM);
+        //FILE *ht=fopen("trans_data.txt","w"); 
+        //for(i=0;i<N_STS;i++)
+        //  printStreamToFile_float(trans_data[i],1280,ht);
+    //fclose(ht);
     #ifdef DEBUGSTABLE
     }
     #endif
@@ -107,12 +112,9 @@ int main(int argc, char* argv[]){
 	
     //save data
     
-    FILE *a=fopen("csd_data_real.txt","wt");                                       //将结果写入文件
-    FILE *b=fopen("csd_data_imag.txt","wt");
-    for(i=1;i<=N_STS;i++)for(j=1;j<=(subcar*N_SYM);j++)fprintf(a,"%d\r\n",csd_data[i-1][j-1].real);
-    for(i=1;i<=N_STS;i++)for(j=1;j<=(subcar*N_SYM);j++)fprintf(b,"%d\r\n",csd_data[i-1][j-1].imag);
-    fclose(a);
-    fclose(b);
+    //FILE *a=fopen("csd_data.txt","w");                                       //将结果写入文件
+    //for(i=1;i<=N_STS;i++)for(j=1;j<=(subcar*N_SYM);j++)fprintf(a,"(%d,%d)\r\n",csd_data[i-1][j-1].real,csd_data[i-1][j-1].imag);
+    //fclose(a);
     
 	//save STF data
     FILE *fp=fopen("STF_csd.txt", "w");

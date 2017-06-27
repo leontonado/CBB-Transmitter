@@ -23,7 +23,7 @@ extern void BCC_encoder_OPT(unsigned char *data_scramble, int ScrLength, int N_S
 #endif
 //调制函数
 extern void modulate(unsigned char **code_out , int BCC_length, int N_SYM, complex32 **sym_mod, int *NumSampEffect );
-extern void initial_streamwave_table();
+extern void initial_streamwave_table(int N_SYM);
 extern void modulate_mapping(unsigned char *BCC_output, complex32 **subcar_map_data);
 //插入导频零频
 extern void PilotAdd_SubcarMap(complex32 **sym_mod, int N_SYM, complex32 **subcar_map_data);

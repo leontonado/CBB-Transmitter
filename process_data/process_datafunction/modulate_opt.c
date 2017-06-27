@@ -21,7 +21,7 @@ static complex32 Data_pilot20[4] = {{8192,0},{8192,0},{8192,0},{-8192,0}};
 static complex32 Data_pilot40[6] = {{8192,0},{8192,0},{8192,0},{-8192,0},{-8192,0},{8192,0}};
 static complex32 Data_pilot80[8] = {{8192,0},{8192,0},{8192,0},{-8192,0},{-8192,0},{8192,0},{8192,0},{8192,0}};
 static complex32 Data_pilot160[8]= {{8192,0},{8192,0},{8192,0},{-8192,0},{-8192,0},{8192,0},{8192,0},{8192,0}};
-
+int Data_pilot[8]={6002,6002,6002,6000,6000,6002,6002,6002};
 static complex32 pilot_type[3]={{-8192,0},{0,0},{8192,0}};
 
 void generate_stream_code_in_table(unsigned int **code_in,int N_BPSCS, int N_CBPS, int N_ES)                               //无导频位置的分流交织表
@@ -169,45 +169,49 @@ void generate_stream_code_in_table(unsigned int **code_in,int N_BPSCS, int N_CBP
 
 }
 
-void PilotAdd_table(unsigned int **code_in,int code_inLength,unsigned int **code_out,int code_outLength) //加入导频位置的分流交织表
+void PilotAdd_table(unsigned int **code_in,int code_inLength,unsigned int **code_out,int code_outLength,int N_SYM) //加入导频位置的分流交织表
 {
     //新建拓展的二维数组
     //unsigned int code_out[N_STS][Length+8+14];
     int i,j,n,p,z;
-    const int pilot_N = 8;
-    const int zero_N  = 14;
-    int Data_pilot80[pilot_N];
-    for(i=0;i<3;i++) {Data_pilot80[i] = 6002;Data_pilot80[i+5] = 6002;}
-    for(i=0;i<2;i++)
-        Data_pilot80[i+3] = 6000;
+    int tx;
+    int cirshift;
+    
+    int arg_pilot[pilot_N];
     int zero=6001;
+    for(i=0;i<N_SYM;i++){
+        cirshift=i%N_pilot;
+        for(j=0;j<pilot_N;j++){
+            arg_pilot[j]=Data_pilot[(j+cirshift)%pilot_N];
+        }
 
-    n=0;p=0;z=0;
-    for(j=0;j<code_outLength;j++)
-    {
+        n=0;p=0;z=0;
+        for(j=0;j<code_outLength;j++)
+        {
 
             if(((j+1)==pilot_index80[p])&&(p<pilot_N))//插入+1和—1的导频地址
             {
-                for(i=0;i<N_STS;i++)
-                   code_out[i][j]=Data_pilot80[p];
+                for(tx=0;tx<N_STS;tx++)
+                   code_out[tx][j+i*code_outLength]=arg_pilot[p];
                 p++;
             }
             else if(((j+1)==zero_index80[z])&&(z<zero_N))//插入零频地址
             {
-                for(i=0;i<N_STS;i++)
-                    code_out[i][j]=zero;
+                for(tx=0;tx<N_STS;tx++)
+                    code_out[tx][j+i*code_outLength]=zero;
                 z++;
             }
             else if(n<code_inLength)
             {
-                for(i=0;i<N_STS;i++)
-                    code_out[i][j]=code_in[i][n];
+                for(tx=0;tx<N_STS;tx++)
+                    code_out[tx][j+i*code_outLength]=code_in[tx][n];
                 n++;
             }
+        }
     }
 }
 
-void initial_streamwave_table()
+void initial_streamwave_table(int N_SYM)
 {
     int i;
 
@@ -233,14 +237,14 @@ void initial_streamwave_table()
     /**< 生成含有导频地址的分流交织表 */
     for(i=0;i<N_STS;i++)
     {
-        streamweave_table[i] = (unsigned int *)malloc(sizeof(unsigned int)*TableLength);
+        streamweave_table[i] = (unsigned int *)malloc(sizeof(unsigned int)*TableLength*N_SYM);
         if(streamweave_table[i]==NULL)
         {
             printf("error: process_data//code_out[%d]",i);
             exit(1);
         }
     }
-    PilotAdd_table(code_in_table,CodeLength, streamweave_table, TableLength);
+    PilotAdd_table(code_in_table,CodeLength, streamweave_table, TableLength,N_SYM);
 
     for(i=0;i<N_STS;i++)
     {
@@ -268,12 +272,13 @@ void parser_stream_interweave(unsigned char *output,unsigned int **stream_interw
 
             for(j=0;j<TableLength;j++)
             {
-                if(stream_parser_weave_table[i][j]==6002)stream_interweave_dataout[i][j+k*TableLength]=101;
-                else if(stream_parser_weave_table[i][j]==6001)stream_interweave_dataout[i][j+k*TableLength]=100;
-                else if(stream_parser_weave_table[i][j]==6000)stream_interweave_dataout[i][j+k*TableLength]=99;
+                 if(stream_parser_weave_table[i][j+k*TableLength]==6002)        stream_interweave_dataout[i][j+k*TableLength]=101;
+                else if(stream_parser_weave_table[i][j+k*TableLength]==6001)  stream_interweave_dataout[i][j+k*TableLength]=100;
+                else if(stream_parser_weave_table[i][j+k*TableLength]==6000)  stream_interweave_dataout[i][j+k*TableLength]=99;
                 else
                 {
-                    stream_interweave_dataout[i][j+k*TableLength] = output[stream_parser_weave_table[i][j]+k*N_CBPS];
+                    //stream_interweave_dataout[i][j+k*TableLength] = output[stream_parser_weave_table[i][j]+k*N_CBPS];
+                    stream_interweave_dataout[i][j+k*TableLength]= output[stream_parser_weave_table[i][j]+k*N_CBPS];
                 }
             }
         }
@@ -411,8 +416,7 @@ void modulate_mapping(unsigned char *BCC_output, complex32 **subcar_map_data)
 
    for(i=0;i<N_STS;i++)
    {
-       free(stream_interweave_dataout[i]);
-       stream_interweave_dataout[i] = NULL;
+       stream_interweave_dataout[i]=NULL;
    }
 }
 
