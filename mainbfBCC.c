@@ -86,7 +86,7 @@ int main(int argc, char* argv[]){
 	time_t start_time=clock();
     #define DEBUGSTABLE
     #ifdef DEBUGSTABLE
-    int n=10000;
+    int n=100000;
     while(n--){
     #endif
 		GenerateData(databits, csd_data);
@@ -94,8 +94,8 @@ int main(int argc, char* argv[]){
     	csd_data_IDFT(csd_data,trans_data,N_SYM);
         //FILE *ht=fopen("trans_data.txt","w"); 
         //for(i=0;i<N_STS;i++)
-        //  printStreamToFile_float(trans_data[i],1280,ht);
-    //fclose(ht);
+        //printStreamToFile_float(trans_data[i],1280,ht);
+        //fclose(ht);
     #ifdef DEBUGSTABLE
     }
     #endif
@@ -170,7 +170,7 @@ void printStream(complex32* pData, int length){
 void printStreamToFile(complex32* pData, int length, FILE* fp){
     int n=length;
     while(n--){
-        fprintf(fp,"%d %d\r\n",pData->real,pData->imag);
+        fprintf(fp,"(%d,%d)\r\n",pData->real,pData->imag);
         ++pData;
     }
 }

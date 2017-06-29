@@ -66,6 +66,8 @@ void BCC_encoder(unsigned char *data_scramble, int ScrLength, int N_SYM, unsigne
     else
         N_ROT = 58;
 
+    free(output);
+    output=NULL;
     for(sym=1;sym<=N_SYM;sym++)
     {
         for(k=1;k<=N_CBPSS;k++)
@@ -168,11 +170,13 @@ void BCC_encoder_OPT(unsigned char *data_scramble, int ScrLength, int N_SYM, uns
     int N_BPSCS, N_DBPS, N_CBPS, N_ES;
     mcs_table_for_20M(&rate_type, &N_BPSCS, &N_DBPS, &N_CBPS, &N_ES);
 
-    //BCC need init, it have init in sig process
+    //BCC needs init, it has to be initialized in sig process
     //ccodedot11_encode (numbytes, inPtr, outPtr, rate_type);
 	unsigned char initstate=0;
 	check_BCCcode(numbytes,inPtr,outPtr,initstate,rate_type);
 	*code_out=output;
+    //free(output);
+    //output=NULL;
 
 	/*
     int i,j,k;

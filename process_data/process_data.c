@@ -3,6 +3,7 @@
 #include "../headers/globalVarINIT.h"
 #include "../headers/commonStructure.h"
 #include "../headers/process_data.h"
+#include "../headers/process.h"
 
 void GenerateData(unsigned char *databits, complex32 **csd_data)
 {
@@ -44,7 +45,7 @@ void GenerateData(unsigned char *databits, complex32 **csd_data)
         sym_mod[i] = (complex32 *)malloc(sizeof(complex32)*(CodeLength));
         if(sym_mod[i]==NULL)
         {
-            printf("error: process_data//sym_mod[%d]¡",i);
+            printf("error: process_data//sym_mod[%d]",i);
             exit(1);
         }
     }
@@ -63,7 +64,7 @@ void GenerateData(unsigned char *databits, complex32 **csd_data)
         subcar_map_data[i] = (complex32 *)malloc(sizeof(complex32)*(subcar*N_SYM));
         if(subcar_map_data[i]==NULL)
         {
-            printf("error: error: process_data//subcar_map_data[%d]¡",i);
+            printf("error: error: process_data//subcar_map_data[%d]",i);
             exit(1);
         }
     }
@@ -79,7 +80,11 @@ void GenerateData(unsigned char *databits, complex32 **csd_data)
 	#ifdef OPTIMIZATION
 	modulate_mapping(BCCencodeout,subcar_map_data);
 	free(BCCencodeout);
+
 	#endif
+    //FILE *ko=fopen("modulate_data.txt", "w");
+    //for(i=0;i<N_STS;i++) printStreamToFile(subcar_map_data[i],512,ko);
+    //fclose(ko);
 
     //////////////////////////////////////////////////////////////////////////////
 /*    complex32 *csd_data[N_STS];                                           //为CSD后的数据申请空间
@@ -100,6 +105,7 @@ void GenerateData(unsigned char *databits, complex32 **csd_data)
 		__Data_CSD_aux(subcar_map_data, N_SYM, csd_data,i);
 	}
 	#endif
+    
     for(i=0;i<N_STS;i++)
     {
         free(subcar_map_data[i]);

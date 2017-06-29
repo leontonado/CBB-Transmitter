@@ -384,7 +384,7 @@ void modulate_mapping(unsigned char *BCC_output, complex32 **subcar_map_data)
         stream_interweave_dataout[i] = (unsigned int *)malloc(sizeof(unsigned int)*TableLength*N_SYM);
         if(stream_interweave_dataout[i]==NULL)
         {
-            printf("error: process_data//code_out[%d]",i);
+            printf("error: process_data/code_out[%d]",i);
             exit(1);
         }
     }
@@ -416,6 +416,7 @@ void modulate_mapping(unsigned char *BCC_output, complex32 **subcar_map_data)
 
    for(i=0;i<N_STS;i++)
    {
+       free(stream_interweave_dataout[i]);
        stream_interweave_dataout[i]=NULL;
    }
 }

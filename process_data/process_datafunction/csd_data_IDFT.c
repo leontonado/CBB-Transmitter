@@ -111,10 +111,14 @@ void csd_data_IDFT(complex32 **csd_data, complex32 **trans_data, int N_SYM)
 
     }
     free(X_freq);
+    X_freq=NULL;
     free(X_freq_pad);
+    X_freq_pad=NULL;
     for(i=0;i<N_STS;i++) {
      free(symbol_data[i]);
-     }   // FILE *t=fopen("trans_data.txt", "w");
+     symbol_data[i]=NULL;
+     }   
+     // FILE *t=fopen("trans_data.txt", "w");
    // for(i=0;i<N_TX;i++) printStreamToFile_float(trans_data[i],1280,t);
    // fclose(t);
 
